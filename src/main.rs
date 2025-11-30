@@ -1,11 +1,15 @@
-use crate::geocoder::Geocoder;
-use crate::input::read_user_number;
+use clap::Parser;
+use geocoder::Geocoder;
+use input::read_user_number;
+use argparser::Argparser;
 mod providers;
 mod geocoder;
 mod input;
+mod argparser;
 
 fn main() {
-    let toponym = "Pavlivka30";
+    let args = Argparser::parse();
+    let toponym = "Pavlivka";
     let country = Some("UA");
     let mut geo = Geocoder::resolve_address(toponym, country).unwrap();
     let top = if geo.results.len() == 1 {
