@@ -1,6 +1,8 @@
-use super::ProviderResult;
+use chrono::NaiveDate;
 
-trait WeatherProvider{
-    type Output;
-    fn get_weather(location: &str, date: &str) -> ProviderResult<Self::Output>;
+use super::ProviderResult;
+use super::ProvidersReport;
+
+pub trait WeatherProvider{
+    fn get_weather(&self, latitude: f64, longitude: f64, date: NaiveDate) -> ProviderResult<ProvidersReport>;
 }

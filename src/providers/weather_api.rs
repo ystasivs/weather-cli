@@ -1,33 +1,46 @@
 use reqwest::blocking::Client;
 use reqwest::header::ACCEPT;
 use reqwest::StatusCode;
-use serde::Deserialize;
+use urlencoding::encode;
+use chrono::{NaiveDate, Local};
 
 use super::error::{ProviderError, ProviderResult};
-struct WeatherApi{
+use super::models::weather_api::{WeatherApiReport, WeatherApiForecastError};
+use super::providers_report::ProvidersReport;
+use super::provider_trait::WeatherProvider;
+pub struct WeatherApi{
     api_key: String,
 }
 
 impl WeatherApi{
-    fn new(api_key: String) -> Self {
+    pub fn new(api_key: String) -> Self {
         Self {
             api_key
         }
     }
-
-    fn prepare_url(&self, location: &str, date: &str) -> String {
-        format!("https://api.weatherapi.com/v1/forecast.json?q={}&days=1&dt={}&key={}", location, date, self.api_key)
+    fn prepare_url(&self, latitude: f64, longitude: f64, date: NaiveDate) -> String {
+        let location = format!("{latitude},{longitude}");
+        let location_encoded = encode(&location);
+        let endpoint = if date >= Local::now().naive_local().date() {
+            "forecast.json"
+        } else {
+            "history.json"
+        };
+        format!("https://api.weatherapi.com/v1/{}?q={}&days=1&dt={}&key={}", endpoint, location_encoded, date, self.api_key)
     }
+}
 
-    pub fn get_weather(self, location: &str, date: &str) -> ProviderResult<WeatherApiReport> {
+impl WeatherProvider for WeatherApi {
+    fn get_weather(&self, latitude: f64, longitude: f64, date: NaiveDate) -> ProviderResult<ProvidersReport> {
         let client = Client::new();
-        let response = client.get(self.prepare_url(location, date))
+        let response = client.get(self.prepare_url(latitude, longitude, date))
             .header(ACCEPT, "application/json")
             .send().map_err(|err| ProviderError::RequestFailed(err.to_string()))?;
         match response.status(){
             StatusCode::OK => {
-                response.json()
-                    .map_err(|err| ProviderError::ParseError(err.to_string()))
+                let body: WeatherApiReport = response.json()
+                    .map_err(|err| ProviderError::ParseError(err.to_string()))?;
+                ProvidersReport::try_from(body)
             }
             _ => {
                 let res: WeatherApiForecastError = response.json()
@@ -38,55 +51,4 @@ impl WeatherApi{
     }
 }
 
-#[derive(Deserialize, Debug)]
-struct WeatherApiReport {
-    location: WeatherApiReportLocation,
-    forecast: WeatherApiForecast
-}
 
-#[derive(Deserialize, Debug)]
-struct WeatherApiForecast{
-    forecastday: Vec<WeatherApiForecastDay>
-}
-
-#[derive(Deserialize, Debug)]
-struct WeatherApiReportLocation {
-    name: String,
-    region: String,
-    country: String,
-    localtime: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct WeatherApiForecastDay{
-    date: String,
-    day: WeatherApiDay
-}
-
-#[derive(Deserialize, Debug)]
-struct WeatherApiDay{
-    maxtemp_c: f32,
-    mintemp_c: f32,
-    avgtemp_c: f32,
-    maxwind_kph: f32,
-    totalprecip_mm: f32,
-    avghumidity: f32,
-    maxvind_kph: f32,
-    daily_will_it_snow: f32,
-    daily_chance_of_rain: f32,
-    condition: WeatherApiCondition
-}
-
-#[derive(Deserialize, Debug)]
-struct WeatherApiCondition {
-    text: String,
-    icon: String,
-    code: i32
-}
-
-#[derive(Deserialize, Debug)]
-struct WeatherApiForecastError {
-    message: String,
-    code: i32
-}
-//todo Add astro

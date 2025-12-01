@@ -11,8 +11,11 @@ pub enum ProviderError {
     #[error("failed with msg from provider: {0}")]
     ProviderMsgError(String),
 
-    #[error("unexpected status code {0}: {1}")]
-    Other(u16, String),    // other HTTP errors
+    #[error("provided error is out of range for provider: {0}")]
+    DateIsOutOfRange(String),
+
+    #[error("failed to convert to common format response from provider: {0}, e: {1}")]
+    ConvertionError(String, String),    // other HTTP errors
 }
 
-pub type ProviderResult<T> = std::result::Result<T, ProviderError>;
+pub type ProviderResult<T> = Result<T, ProviderError>;
