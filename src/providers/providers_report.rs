@@ -28,7 +28,7 @@ impl fmt::Display for ProvidersReport {
             Temperature   : min {:.1}°C | max {:.1}°C | avg {:.1}°C\n\
             Precipitation : {:.1}%\n\
             Humidity      : {:.1}%\n\
-            Wind          : {:.1} kph ({})",
+            Wind          : {:.1} m/sec ({})",
             self.summary,
             self.min_temp,
             self.max_temp,

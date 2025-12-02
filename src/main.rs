@@ -20,21 +20,21 @@ fn main() {
             eprintln!("Error: Location is required for this command. Provide <TOPONYM> or --latitude and --longitude.");
             std::process::exit(1);
         }
-    } else {
-        match args.command {
-            None => {
-                if let Err(e) = run(args.latitude, args.longitude, args.toponym, args.country_code, args.date){
-                    eprintln!("{}", e);
-                }
-            },
-            Some(Commands::Configure { provider_name }) => {
-                configs::set_config_for_provider(&provider_name);
-                println!("updated config for {}", provider_name);
-            },
-            Some(Commands::Select { provider_name }) => {
-                configs::select_default_provider(&provider_name);
-                println!("selected {}", provider_name);
+    }
+    match args.command {
+        None => {
+            if let Err(e) = run(args.latitude, args.longitude, args.toponym, args.country_code, args.date){
+                eprintln!("{}", e);
             }
+        },
+        Some(Commands::Configure { provider_name }) => {
+            configs::set_config_for_provider(&provider_name);
+            println!("updated config for {}", provider_name);
+        },
+        Some(Commands::Select { provider_name }) => {
+            configs::select_default_provider(&provider_name);
+            println!("selected {}", provider_name);
         }
     }
+
 }

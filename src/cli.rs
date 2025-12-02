@@ -7,6 +7,8 @@ use crate::providers::error::ProviderError;
 use thiserror::Error;
 use chrono::NaiveDate;
 
+const POPULATION_THRESHOLD: u32 = 100_000;
+
 #[derive(Error, Debug)]
 pub enum WeatherCliError{
     #[error("Geocoder failed with an error: {0}")]
@@ -26,6 +28,10 @@ pub fn run(latitude: Option<f64>, longitude: Option<f64>, toponym: Option<String
         let mut geo = Geocoder::resolve_address(toponym.clone(), country_code)?;
         let top = if geo.results.len() == 1 {
             geo.results.remove(0)
+        } else if let Some(res) = geo.results.iter().find(|r|{
+            r.population.unwrap_or_default() >= POPULATION_THRESHOLD
+        }) {
+            res.clone()
         } else {
             println!("Found multiple matches for \"{}\":", toponym);
             println!("{geo}");

@@ -13,6 +13,11 @@ pub struct Argparser {
     /// Toponym (city, place name)
     pub toponym: Option<String>,
 
+    /// Date (default today)
+    #[arg(value_parser = parse_date,
+         default_value_t = chrono::Local::now().naive_local().date())]
+    pub date: NaiveDate,
+
     /// Optional country code
     #[arg(short, long)]
     pub country_code: Option<String>,
@@ -22,14 +27,9 @@ pub struct Argparser {
 
     /// Longitude (required if toponym not provided)
     pub longitude: Option<f64>,
-
-    /// Date (default today)
-    #[arg(long, value_parser = parse_date, default_value_t = chrono::Local::now().naive_local().date())]
-    pub date: NaiveDate,
 }
 
 /// Subcommands
-// ... (rest of the code is unchanged)
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Configure provider
@@ -37,7 +37,7 @@ pub enum Commands {
         #[arg(value_enum)]
         provider_name: ProviderName,
     },
-    /// Select provider
+    /// Select provider (open-weather, weather-api)
     Select {
         #[arg(value_enum)]
         provider_name: ProviderName,

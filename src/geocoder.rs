@@ -92,7 +92,7 @@ pub struct GeocoderToponym {
     name: String,
     pub latitude: f64,
     pub longitude: f64,
-    population: Option<u32>,
+    pub population: Option<u32>,
     country: String,
     admin1: Option<String>,
     admin2: Option<String>,
