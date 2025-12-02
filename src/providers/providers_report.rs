@@ -1,7 +1,7 @@
 use std::fmt;
 
-use super::models::{weather_api::WeatherApiReport, openweather_api::OpenWeatherDaily};
 use super::error::ProviderError;
+use super::models::{openweather_api::OpenWeatherDaily, weather_api::WeatherApiReport};
 
 pub struct ProvidersReport {
     min_temp: f32,
@@ -43,9 +43,15 @@ impl fmt::Display for ProvidersReport {
 impl TryFrom<WeatherApiReport> for ProvidersReport {
     type Error = ProviderError;
     fn try_from(value: WeatherApiReport) -> Result<Self, Self::Error> {
-        let day = value.forecast.forecastday.first()
-            .ok_or(ProviderError::ConvertionError("weather api".to_string(), "failed to get forecast".to_string()))?;
-        Ok(Self{
+        let day = value
+            .forecast
+            .forecastday
+            .first()
+            .ok_or(ProviderError::ConvertionError(
+                "weather api".to_string(),
+                "failed to get forecast".to_string(),
+            ))?;
+        Ok(Self {
             max_temp: day.day.maxtemp_c,
             min_temp: day.day.mintemp_c,
             avg_temp: day.day.avgtemp_c,
@@ -61,7 +67,7 @@ impl TryFrom<WeatherApiReport> for ProvidersReport {
 impl TryFrom<OpenWeatherDaily> for ProvidersReport {
     type Error = ProviderError;
     fn try_from(value: OpenWeatherDaily) -> Result<Self, Self::Error> {
-        Ok(Self{
+        Ok(Self {
             max_temp: value.temp.max,
             min_temp: value.temp.min,
             avg_temp: value.temp.day,
@@ -77,7 +83,7 @@ impl TryFrom<OpenWeatherDaily> for ProvidersReport {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::providers::models::{weather_api::*, openweather_api::*};
+    use crate::providers::models::{openweather_api::*, weather_api::*};
 
     #[test]
     fn test_report_display_with_wind_direction() {

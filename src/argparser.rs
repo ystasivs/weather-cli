@@ -1,5 +1,5 @@
-use clap::{Parser, Subcommand, ValueEnum};
 use chrono::NaiveDate;
+use clap::{Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -50,7 +50,7 @@ pub enum Commands {
 #[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum ProviderName {
     OpenWeather,
-    WeatherApi
+    WeatherApi,
 }
 
 impl fmt::Display for ProviderName {

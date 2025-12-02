@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
-use std::fs;
-use crate::input::read_user_string;
 use crate::argparser::ProviderName;
+use crate::input::read_user_string;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::fs;
 
 const CONFIG_FILE_NAME: &str = "/tmp/weather_cli_config.toml";
 
@@ -27,13 +27,9 @@ impl Config {
 #[serde(tag = "type")]
 pub enum ProviderConfig {
     #[serde(rename = "weatherapi")]
-    WeatherApi {
-        api_key: String,
-    },
+    WeatherApi { api_key: String },
     #[serde(rename = "openweather")]
-    OpenWeather {
-        api_key: String,
-    },
+    OpenWeather { api_key: String },
 }
 
 pub fn set_config_for_provider(provider_name: &ProviderName) {
@@ -42,22 +38,30 @@ pub fn set_config_for_provider(provider_name: &ProviderName) {
         ProviderName::OpenWeather => {
             println!("Please provide api_key for OpenWeather");
             let api_key = read_user_string();
-            config.providers
+            config
+                .providers
                 .entry(provider_name.clone())
                 .and_modify(|cfg| {
-                    if let ProviderConfig::OpenWeather { api_key: existing_key } = cfg {
+                    if let ProviderConfig::OpenWeather {
+                        api_key: existing_key,
+                    } = cfg
+                    {
                         *existing_key = api_key.clone();
                     }
                 })
                 .or_insert(ProviderConfig::OpenWeather { api_key });
-        },
+        }
         ProviderName::WeatherApi => {
             println!("Please provide WeatherApi");
             let api_key = read_user_string();
-            config.providers
+            config
+                .providers
                 .entry(provider_name.clone())
                 .and_modify(|cfg| {
-                    if let ProviderConfig::WeatherApi { api_key: existing_key } = cfg {
+                    if let ProviderConfig::WeatherApi {
+                        api_key: existing_key,
+                    } = cfg
+                    {
                         *existing_key = api_key.clone();
                     }
                 })

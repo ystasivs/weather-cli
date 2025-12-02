@@ -22,7 +22,10 @@ pub fn read_user_number(min: usize, max: usize, max_attempts: u32) -> Result<usi
         }
     }
 
-    Err(format!("Failed to provide a valid number after {} attempts", max_attempts))
+    Err(format!(
+        "Failed to provide a valid number after {} attempts",
+        max_attempts
+    ))
 }
 
 pub fn read_user_string() -> String {

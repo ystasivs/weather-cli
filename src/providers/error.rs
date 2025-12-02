@@ -6,7 +6,7 @@ pub enum ProviderError {
     RequestFailed(String), // network / HTTP errors
 
     #[error("failed to parse response: {0}")]
-    ParseError(String),    // JSON deserialization failed
+    ParseError(String), // JSON deserialization failed
 
     #[error("failed with msg from provider: {0}")]
     ProviderMsgError(String),
@@ -15,7 +15,7 @@ pub enum ProviderError {
     DateIsOutOfRange(String),
 
     #[error("failed to convert to common format response from provider: {0}, e: {1}")]
-    ConvertionError(String, String),    // other HTTP errors
+    ConvertionError(String, String), // other HTTP errors
 }
 
 pub type ProviderResult<T> = Result<T, ProviderError>;

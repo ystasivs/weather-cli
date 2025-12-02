@@ -3,17 +3,17 @@ pub mod weather_api {
     use super::*;
     #[derive(Deserialize, Debug)]
     pub struct WeatherApiReport {
-        pub(crate) forecast: WeatherApiForecast
+        pub(crate) forecast: WeatherApiForecast,
     }
 
     #[derive(Deserialize, Debug)]
     pub(crate) struct WeatherApiForecast {
-        pub(crate) forecastday: Vec<WeatherApiForecastDay>
+        pub(crate) forecastday: Vec<WeatherApiForecastDay>,
     }
 
     #[derive(Deserialize, Debug)]
     pub(crate) struct WeatherApiForecastDay {
-        pub(crate) day: WeatherApiDay
+        pub(crate) day: WeatherApiDay,
     }
 
     #[derive(Deserialize, Debug)]
@@ -24,7 +24,7 @@ pub mod weather_api {
         pub(crate) maxwind_kph: f32,
         pub(crate) avghumidity: f32,
         pub(crate) daily_chance_of_rain: f32,
-        pub(crate) condition: WeatherApiCondition
+        pub(crate) condition: WeatherApiCondition,
     }
 
     #[derive(Deserialize, Debug)]
@@ -42,8 +42,8 @@ pub mod openweather_api {
     use super::*;
 
     #[derive(Deserialize, Debug)]
-    pub(crate) struct OpenWeatherReport{
-        pub(crate) daily: Vec<OpenWeatherDaily>
+    pub(crate) struct OpenWeatherReport {
+        pub(crate) daily: Vec<OpenWeatherDaily>,
     }
 
     #[derive(Deserialize, Debug)]
@@ -54,7 +54,7 @@ pub mod openweather_api {
         pub(crate) humidity: f32,
         pub(crate) wind_speed: f32,
         pub(crate) wind_deg: i32,
-        pub(crate) pop: f32
+        pub(crate) pop: f32,
     }
 
     #[derive(Deserialize, Debug)]

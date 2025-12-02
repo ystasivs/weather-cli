@@ -1,10 +1,10 @@
-pub mod weather_api;
-mod provider_trait;
 pub mod error;
-pub mod open_weather;
 mod models;
+pub mod open_weather;
+mod provider_trait;
 mod providers_report;
+pub mod weather_api;
 
 pub use error::ProviderResult;
-pub use providers_report::ProvidersReport;
 pub use provider_trait::WeatherProvider;
+pub use providers_report::ProvidersReport;
