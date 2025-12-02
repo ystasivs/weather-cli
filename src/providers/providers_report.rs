@@ -43,7 +43,7 @@ impl fmt::Display for ProvidersReport {
 impl TryFrom<WeatherApiReport> for ProvidersReport {
     type Error = ProviderError;
     fn try_from(value: WeatherApiReport) -> Result<Self, Self::Error> {
-        let day = value.forecast.forecastday.get(0)
+        let day = value.forecast.forecastday.first()
             .ok_or(ProviderError::ConvertionError("weather api".to_string(), "failed to get forecast".to_string()))?;
         Ok(Self{
             max_temp: day.day.maxtemp_c,

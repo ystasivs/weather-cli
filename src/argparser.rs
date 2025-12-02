@@ -23,9 +23,11 @@ pub struct Argparser {
     pub country_code: Option<String>,
 
     /// Latitude (required if toponym not provided)
+    #[arg(long)]
     pub latitude: Option<f64>,
 
     /// Longitude (required if toponym not provided)
+    #[arg(long)]
     pub longitude: Option<f64>,
 }
 

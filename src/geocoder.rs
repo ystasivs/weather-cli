@@ -24,7 +24,7 @@ impl Geocoder {
             },
             _ => {
                 let body = response.text().unwrap_or_else(|_| "<failed to read body>".into());
-                Err(GeocoderError::GeocoderError(body, status.as_u16()))
+                Err(GeocoderError::GeocoderInternalError(body, status.as_u16()))
             }
         }
     }
@@ -35,7 +35,7 @@ pub enum GeocoderError{
     #[error("failed to send request to geocoder, e={0}")]
     FailedRequest(#[from] reqwest::Error),
     #[error("geocoder returned: {0}. with status code {1}")]
-    GeocoderError(String, u16),
+    GeocoderInternalError(String, u16),
     #[error("failed to parse response body")]
     ParseError(String)
 }

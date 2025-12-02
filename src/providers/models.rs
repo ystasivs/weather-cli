@@ -13,7 +13,6 @@ pub mod weather_api {
 
     #[derive(Deserialize, Debug)]
     pub(crate) struct WeatherApiForecastDay {
-        pub(crate) date: String,
         pub(crate) day: WeatherApiDay
     }
 
@@ -36,7 +35,6 @@ pub mod weather_api {
     #[derive(Deserialize, Debug)]
     pub(crate) struct WeatherApiForecastError {
         pub(crate) message: String,
-        code: i32
     }
 }
 
