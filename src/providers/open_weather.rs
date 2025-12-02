@@ -45,3 +45,17 @@ impl WeatherProvider for OpenWeather {
         }
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_prepare_url() {
+        let provider = OpenWeather::new("test_key".to_string());
+        let url = provider.prepare_url(40.71, -74.01);
+        let expected = "https://api.openweathermap.org/data/3.0/onecall?lat=40.71&lon=-74.01&appid=test_key&exclude=hourly,minutely&units=metric";
+        assert_eq!(url, expected);
+    }
+}

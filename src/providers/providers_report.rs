@@ -73,3 +73,86 @@ impl TryFrom<OpenWeatherDaily> for ProvidersReport {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::providers::models::{weather_api::*, openweather_api::*};
+
+    #[test]
+    fn test_report_display_with_wind_direction() {
+        let report = ProvidersReport {
+            min_temp: 10.0,
+            max_temp: 20.0,
+            avg_temp: 15.0,
+            pop: 50.5,
+            summary: "Sunny".to_string(),
+            wind_speed: 5.5,
+            humidity: 70.0,
+            wind_direction: Some(180),
+        };
+        let expected = "\
+Weather Report:\n\
+Summary       : Sunny\n\
+Temperature   : min 10.0°C | max 20.0°C | avg 15.0°C\n\
+Precipitation : 50.5%\n\
+Humidity      : 70.0%\n\
+Wind          : 5.5 m/sec (180°)";
+        assert_eq!(format!("{}", report), expected);
+    }
+
+    #[test]
+    fn test_try_from_weather_api_report() {
+        let api_report = WeatherApiReport {
+            forecast: WeatherApiForecast {
+                forecastday: vec![WeatherApiForecastDay {
+                    day: WeatherApiDay {
+                        maxtemp_c: 25.0,
+                        mintemp_c: 15.0,
+                        avgtemp_c: 20.0,
+                        maxwind_kph: 36.0, // 36 kph = 10 m/sec
+                        avghumidity: 60.0,
+                        daily_chance_of_rain: 10.0,
+                        condition: WeatherApiCondition {
+                            text: "Partly cloudy".to_string(),
+                        },
+                    },
+                }],
+            },
+        };
+
+        let report = ProvidersReport::try_from(api_report).unwrap();
+        assert_eq!(report.max_temp, 25.0);
+        assert_eq!(report.min_temp, 15.0);
+        assert_eq!(report.avg_temp, 20.0);
+        // Test kph to m/sec conversion: 36 kph * 1000 / 3600 = 10 m/sec
+        assert!((report.wind_speed - 10.0).abs() < 0.001);
+        assert_eq!(report.summary, "Partly cloudy");
+    }
+
+    #[test]
+    fn test_try_from_open_weather_daily() {
+        let ow_daily = OpenWeatherDaily {
+            dt: 1672531200, // Example timestamp
+            summary: "Clear sky".to_string(),
+            temp: OpeWeatherTemperature {
+                day: 18.0,
+                min: 12.0,
+                max: 22.0,
+            },
+            humidity: 65.0,
+            wind_speed: 7.5,
+            wind_deg: 90,
+            pop: 0.1,
+        };
+
+        let report = ProvidersReport::try_from(ow_daily).unwrap();
+        assert_eq!(report.max_temp, 22.0);
+        assert_eq!(report.min_temp, 12.0);
+        assert_eq!(report.avg_temp, 18.0);
+        assert!((report.pop - 0.1).abs() < 0.001);
+        assert_eq!(report.summary, "Clear sky");
+        assert_eq!(report.wind_speed, 7.5);
+        assert_eq!(report.wind_direction, Some(90));
+    }
+}

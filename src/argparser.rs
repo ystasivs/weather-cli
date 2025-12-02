@@ -66,3 +66,26 @@ impl fmt::Display for ProviderName {
 fn parse_date(s: &str) -> Result<NaiveDate, chrono::format::ParseError> {
     NaiveDate::parse_from_str(s, "%Y-%m-%d")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_date_valid() {
+        let date = parse_date("2025-10-26").unwrap();
+        assert_eq!(date, NaiveDate::from_ymd_opt(2025, 10, 26).unwrap());
+    }
+
+    #[test]
+    fn test_parse_date_invalid_format() {
+        let result = parse_date("26-10-2025");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_provider_name_display() {
+        assert_eq!(format!("{}", ProviderName::WeatherApi), "WeatherApi");
+        assert_eq!(format!("{}", ProviderName::OpenWeather), "OpenWeather");
+    }
+}

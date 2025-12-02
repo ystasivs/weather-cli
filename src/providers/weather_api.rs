@@ -51,4 +51,29 @@ impl WeatherProvider for WeatherApi {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_prepare_url_for_future_date_uses_forecast() {
+        let provider = WeatherApi::new("test_key".to_string());
+        let future_date = NaiveDate::from_ymd_opt(9999, 1, 1).unwrap();
+        let url = provider.prepare_url(51.5, -0.1, future_date);
+        assert!(url.contains("forecast.json"));
+        assert!(url.contains("q=51.5%2C-0.1"));
+        assert!(url.contains("dt=9999-01-01"));
+    }
+
+    #[test]
+    fn test_prepare_url_for_historical_date_uses_history() {
+        let provider = WeatherApi::new("test_key".to_string());
+        // Use a date guaranteed to be in the past
+        let past_date = NaiveDate::from_ymd_opt(2000, 1, 1).unwrap();
+        let url = provider.prepare_url(51.5, -0.1, past_date);
+        assert!(url.contains("history.json"));
+        assert!(url.contains("dt=2000-01-01"));
+    }
+}
+
 
