@@ -1,35 +1,40 @@
-use chrono::NaiveDate;
 use clap::Parser;
-use geocoder::Geocoder;
-use input::read_user_number;
-use providers::open_weather::OpenWeather;
 
 mod providers;
 mod geocoder;
 mod input;
 mod argparser;
+mod configs;
+mod provider_builder;
+mod cli;
 
+use argparser::{Argparser, Commands};
+use cli::run;
 fn main() {
-    // let args = Argparser::parse();
-    let toponym = "Pavlivka";
-    let country = Some("UA");
-    let date = NaiveDate::from_ymd_opt(2025, 12, 5).unwrap();
+    let args = Argparser::parse();
+    if args.command.is_none() {
+        let toponym_present = args.toponym.is_some();
+        let lat_long_present = args.latitude.is_some() && args.longitude.is_some();
 
-    let mut geo = Geocoder::resolve_address(toponym, country).unwrap();
-    let top = if geo.results.len() == 1 {
-        geo.results.remove(0)
+        if !toponym_present && !lat_long_present {
+            eprintln!("Error: Location is required for this command. Provide <TOPONYM> or --latitude and --longitude.");
+            std::process::exit(1);
+        }
     } else {
-        println!("Found multiple matches for \"{}\":", toponym);
-        println!("{geo}");
-        println!("Enter a number 1-{}:", geo.results.len());
-        let idx = read_user_number(1, geo.results.len(), 3).unwrap();
-        geo.results.remove(idx - 1)
-    };
-    println!("TOTP: {}", top);
-    // let provider = WeatherApi::new("88793bbbe01c4cdaa74132047252911".to_string());
-    // let res = provider.get_weather(top.latitude, top.longitude, date).unwrap();
-    // println!("{:#?}", res);
-    let open_weather_api = "18f9d9d962c74a0e011d96cf4f825bdb";
-    let open_provider = OpenWeather::new(open_weather_api.to_string());
-    // open_provider.get_weather(top.latitude, top.longitude, date).unwrap()
+        match args.command {
+            None => {
+                if let Err(e) = run(args.latitude, args.longitude, args.toponym, args.country_code, args.date){
+                    eprintln!("{}", e);
+                }
+            },
+            Some(Commands::Configure { provider_name }) => {
+                configs::set_config_for_provider(&provider_name);
+                println!("updated config for {}", provider_name);
+            },
+            Some(Commands::Select { provider_name }) => {
+                configs::select_default_provider(&provider_name);
+                println!("selected {}", provider_name);
+            }
+        }
+    }
 }

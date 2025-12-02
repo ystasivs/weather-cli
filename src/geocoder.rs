@@ -2,13 +2,12 @@ use std::fmt;
 use thiserror::Error;
 use reqwest::blocking::get;
 use serde::Deserialize;
-use std::io;
 pub struct Geocoder;
 
 impl Geocoder {
     // const POPULATION_THRESHOLD: u32 = 100_000;
 
-    pub fn resolve_address(toponym: &str, country_code: Option<&str>) -> Result<GeocoderResult, GeocoderError> {
+    pub fn resolve_address(toponym: String, country_code: Option<String>) -> Result<GeocoderResult, GeocoderError> {
         let country_code = country_code
             .map(|c| format!("&countryCode={c}"))
             .unwrap_or_default();
@@ -17,36 +16,11 @@ impl Geocoder {
         let status = response.status();
         match status{
             reqwest::StatusCode::OK => {
-                let mut results: GeocoderResult = response.json().map_err(|e| GeocoderError::ParseError(e.to_string()))?;
+                let results: GeocoderResult = response.json().map_err(|e| GeocoderError::ParseError(e.to_string()))?;
                 if results.results.is_empty() {
                     return Err(GeocoderError::ParseError("no results".into()));
                 }
                 Ok(results)
-                // if results.results.len() == 1 {
-                //     Ok(results.results.pop().unwrap())
-                // } else {
-                //     if let Some(toponym) = results.results.iter().find(|&t|{
-                //         t.name == toponym && t.population.unwrap_or_default() >= Self::POPULATION_THRESHOLD
-                //     }).map(|t| t.clone()){
-                //         return Ok(toponym)
-                //     };
-                //     println!("Found multiple matches for \"{}\":", toponym);
-                //     println!("{results}");
-                //     println!("Enter a number 1-{}:", results.results.len());
-                //
-                //     let mut input = String::new();
-                //     io::stdin().read_line(&mut input)
-                //         .map_err(|_| GeocoderError::InvalidUserInput(results.results.len()))?;
-                //
-                //     let idx = input.trim().parse::<usize>()
-                //         .map_err(|_| GeocoderError::InvalidUserInput(results.results.len()))?;
-                //
-                //     if !(1..=results.results.len()).contains(&idx) {
-                //         return Err(GeocoderError::InvalidUserInput(results.results.len()));
-                //     }
-                //     Ok(results.results.remove(idx - 1))
-                // }
-
             },
             _ => {
                 let body = response.text().unwrap_or_else(|_| "<failed to read body>".into());

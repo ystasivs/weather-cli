@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use chrono::NaiveDate;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// CLI for geocoding/weather
 #[derive(Parser, Debug)]
@@ -9,7 +11,6 @@ pub struct Argparser {
     pub command: Option<Commands>,
 
     /// Toponym (city, place name)
-    #[arg(required_unless_present_all(&["latitude", "longitude"]))]
     pub toponym: Option<String>,
 
     /// Optional country code
@@ -17,19 +18,18 @@ pub struct Argparser {
     pub country_code: Option<String>,
 
     /// Latitude (required if toponym not provided)
-    #[arg(long, required_unless_present("toponym"))]
     pub latitude: Option<f64>,
 
     /// Longitude (required if toponym not provided)
-    #[arg(long, required_unless_present("toponym"))]
     pub longitude: Option<f64>,
 
     /// Date (default today)
-    #[arg(long, value_parser = parse_date, default_value_t = chrono::Local::today().naive_local())]
+    #[arg(long, value_parser = parse_date, default_value_t = chrono::Local::now().naive_local().date())]
     pub date: NaiveDate,
 }
 
 /// Subcommands
+// ... (rest of the code is unchanged)
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Configure provider
@@ -45,14 +45,21 @@ pub enum Commands {
 }
 
 /// Supported provider names
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone, ValueEnum, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum ProviderName {
     OpenWeather,
-    AccuWeather,
-    AerisWeather,
-    WeatherApi,
+    WeatherApi
 }
 
+impl fmt::Display for ProviderName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = match self {
+            ProviderName::WeatherApi => "WeatherApi",
+            ProviderName::OpenWeather => "OpenWeather",
+        };
+        write!(f, "{}", name)
+    }
+}
 /// Custom parser for date in YYYY-MM-DD format
 fn parse_date(s: &str) -> Result<NaiveDate, chrono::format::ParseError> {
     NaiveDate::parse_from_str(s, "%Y-%m-%d")

@@ -24,3 +24,12 @@ pub fn read_user_number(min: usize, max: usize, max_attempts: u32) -> Result<usi
 
     Err(format!("Failed to provide a valid number after {} attempts", max_attempts))
 }
+
+pub fn read_user_string() -> String {
+    print!("> ");
+    io::stdout().flush().unwrap();
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    input.trim().to_string()
+}
